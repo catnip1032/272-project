@@ -1,0 +1,25 @@
+<table *ngIf="showFormCard === false" matSort (matSortChange)="sortData($event)" class="mat-elevation-z8">
+  <tr>
+    <th mat-sort-header="location">Location</th>
+    <th mat-sort-header="piggyName">Piggy Name</th>
+    <th mat-sort-header="reportedBy">Reported By</th>
+    <th mat-sort-header="TimeReported">Time Reported</th>
+    <th mat-sort-header="status">Status</th>
+  </tr>
+
+  <tr *ngFor="let report of reportData">
+    <td>{{report.location}}</td>
+    <td>{{report.piggyName}}</td>
+    <td>{{report.reportedBy}}</td>
+    <td>{{report.timeReported}}</td>
+    <td>{{report.status}}</td>
+    <td>
+      <a href="">More Details</a>
+      </td>
+    <td>
+      <button mat-icon-button color="warn" aria-label="Icon button with a delete icon">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </tr>
+</table>
