@@ -1,6 +1,12 @@
+// import { ReportLocation } from "./report-location";
 
-export class Report {
+import { ReportLocation } from "../interfaces";
+
+export class Report implements ReportLocation {
+
+  
   constructor(
+    uid: string,
     reporterName: string,
     reportedNumber: string,
     pid: number,
@@ -11,9 +17,17 @@ export class Report {
     pigMood: string,
     dateFound: string,
     dateReported: Date,
-    locationFound: string,
-    LocationName: string,
+    locationLat: number,
+    locationLong: number,
+    locationName: string,
     extraNotes: string,
-    status: boolean
-  ) {}  
+    status: boolean,
+  ) {
+    this.locationName = locationName;
+    this.latitude = locationLat;
+    this.longitude = locationLong;
+  }  
+  locationName: string;
+  latitude: number;
+  longitude: number;
 }

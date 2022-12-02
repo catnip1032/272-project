@@ -1,5 +1,6 @@
 TODO:
 
+
 fix location modal bugs
  - modal may be destroyed and not able to send a request to DB
    - send back the inputs and request on the report form component
@@ -28,6 +29,10 @@ make injuries only pop up when injury toggled - DONE
 make modal for location - DONE
  - text for location name, lat and lon - DONE
  - validation, can't add an already existing location, can't add same lat and long - DONE
+
+ Map:
+- all pig reports shown using markers
+- clicking a marker shows the number of reports at that location
 ---------------------------------------
 Requirements:
 
@@ -82,4 +87,6 @@ Technical Requirements:
 - intuitive to use
 - creative
 - use the data manager API
+
+remove the anys
  

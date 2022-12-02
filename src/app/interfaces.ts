@@ -21,5 +21,11 @@ export interface PigMood {
 export interface DialogData {
     lat: number;
     long: number;
-  }
+}
+
+export interface ReportLocation {
+    locationName: string,
+    latitude: number,
+    longitude: number,
+}
   

@@ -1,6 +1,9 @@
 import { Component, AfterViewInit, Input} from '@angular/core';
 import * as L from 'leaflet';
 import{ icon, Marker } from "leaflet"; 
+import { DatabaseService } from '../database.service';
+import { Report } from '../models/report';
+// import { ReportLocation } from '../models/report-location';
 
 const iconRetinaUrl = "assets/marker-icon-2x.png";
 const iconUrl = "assets/marker-icon.png";
@@ -25,6 +28,10 @@ Marker.prototype.options.icon = iconDefault;
 export class MapComponent implements AfterViewInit {
   @Input() showFormCard: boolean = false;
 
+  constructor(
+    private databaseService: DatabaseService,
+  ){}
+
   private map: any;
 
   private initMap(): void {
@@ -44,11 +51,10 @@ export class MapComponent implements AfterViewInit {
 
     tiles.addTo(this.map);
 
+    this.drawPigMarkers();
     L.marker([49.2276, -123.0076]).addTo(this.map).bindPopup("<b>Metrotown</b><br/>cases reported");
     L.marker([49.1867, -122.8490]).addTo(this.map).bindPopup("<b>SFU Surrey</b><br/>cases reported");
   }
-
-  constructor() { }
 
   onMapReady(map: L.Map) {
     map.invalidateSize();
@@ -57,4 +63,19 @@ export class MapComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.initMap();
   }
+
+  drawPigMarkers(){
+    this.databaseService.getAllReports()
+    .subscribe((data: any) => {
+      data = JSON.parse(data);
+      let reports = this.databaseService.generateReports(data);
+      reports.forEach((report: Report) => {
+        let lat = report.latitude;
+        let long = report.longitude;
+        let locationName = report.locationName;
+        L.marker([lat, long]).addTo(this.map).bindPopup(`<b>${locationName}</b><br/>cases reported`);
+      });
+    });
+  }
+
 }

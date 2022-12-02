@@ -12,6 +12,12 @@
     <td>{{report.piggyName}}</td>
     <td>{{report.reportedBy}}</td>
     <td>{{report.timeReported}}</td>
+    <td>
+      <!-- TODO: see if this is the correct way to pass in the report -->
+      <button id="status-button" (click)="=changePigStatus(report)"> 
+        <p id="status-text">{{report.status}}</p>
+      </button>
+    </td>
     <td>{{report.status}}</td>
     <td>
       <a href="">More Details</a>

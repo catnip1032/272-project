@@ -1,5 +1,7 @@
-import {Component, Input} from '@angular/core';
+import {AfterViewInit, Component, Input} from '@angular/core';
 import {Sort} from '@angular/material/sort';
+import { DatabaseService } from '../database.service';
+import { Report } from '../models/report';
 
 
 export interface PiggyReport {
@@ -18,20 +20,34 @@ export interface PiggyReport {
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css']
 })
-export class TableComponent {
+export class TableComponent implements AfterViewInit{
   @Input() showFormCard: boolean = false;
 
-  piggyReports: PiggyReport[] = [
-    {location: "P Sherman walliby way Sidney", piggyName: 'Hydrogen', reportedBy: "Someone", timeReported: Date.now(), status: "Found"},
-    {location: "Opera House", piggyName: 'Helium', reportedBy: "ANother someone", timeReported: Date.now(), status: "Dead"},
-    {location: "A park", piggyName: 'Barium', reportedBy: "Spongebob", timeReported: Date.now(), status: "Sad"},
-    {location: "Prague", piggyName: 'Carbon', reportedBy: "Patrick", timeReported: Date.now(), status: "Missing"},
-  ];
+  // piggyReports: PiggyReport[] = [
+  //   {location: "P Sherman walliby way Sidney", piggyName: 'Hydrogen', reportedBy: "Someone", timeReported: Date.now(), status: "Found"},
+  //   {location: "Opera House", piggyName: 'Helium', reportedBy: "ANother someone", timeReported: Date.now(), status: "Dead"},
+  //   {location: "A park", piggyName: 'Barium', reportedBy: "Spongebob", timeReported: Date.now(), status: "Sad"},
+  //   {location: "Prague", piggyName: 'Carbon', reportedBy: "Patrick", timeReported: Date.now(), status: "Missing"},
+  // ];
+
+  piggyReports: PiggyReport[] = [];
 
   reportData: PiggyReport[];
 
-  constructor() {
+
+  constructor(
+    private databaseService: DatabaseService
+  ) {
+    var reportSubscription = this.databaseService.getAllReports();
+    reportSubscription.subscribe((data: any) => {
+      data = JSON.parse(data);
+      let reports = this.databaseService.generateReports(data);
+      
+    });
+    
     this.reportData = this.piggyReports.slice();
+  }
+  ngAfterViewInit(): void {
   }
 
   sortData(sort: Sort) {
@@ -59,6 +75,20 @@ export class TableComponent {
       }
     });
   }
+
+  changePigStatus(report: Report) {
+    var oldStatus = report.status;
+    var updateSuccess = this.databaseService.updateReportById(report);
+    if (updateSuccess) {
+      // update list of piggy reports
+      // get the switch text
+      // change the switch text
+    } else {
+      // log an error
+    }
+
+  }
+
 }
 
 function compare(a: number | string, b: number | string, isAsc: boolean) {
