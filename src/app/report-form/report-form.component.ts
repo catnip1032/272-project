@@ -1,17 +1,41 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { PigBreed, Location, InjuryLocation, PigMood } from '../interfaces';
+import { SelectionInterface, ReportLocationSelectionInterface } from '../interfaces';
 import { LocationModalComponent } from '../location-modal/location-modal.component';
+import { DatabaseService } from '../database.service';
 
 @Component({
   selector: 'app-report-form',
   templateUrl: './report-form.component.html',
   styleUrls: ['./report-form.component.css']
 })
-export class ReportFormComponent {
-  constructor(public dialog: MatDialog) {}
+export class ReportFormComponent implements AfterViewInit{
+  @Input() showFormCard = false;
+  @Output() showFormCardEvent = new EventEmitter();
+  locations: ReportLocationSelectionInterface[] = [];
+  selectedLocation = "";
+
+  constructor(
+    public dialog: MatDialog,
+    private databaseService: DatabaseService
+    ) {}
+
+  ngAfterViewInit(): void {
+    this.databaseService.getAllLocations()
+    .subscribe((elements: any)=> {
+      elements.forEach((element: any, index: number) => {
+        let location = element.data;
+        this.locations.push({
+          key: element.key,
+          locationName: location.name,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
+      });
+    });
+  }
 
   showInjurySection = false;
 
@@ -35,10 +59,8 @@ export class ReportFormComponent {
       Validators.required,
     ]),
     injuryLocationFormControl: new FormControl('N/A',[
-      Validators.required,
     ]),
-    injurySeverityControl: new FormControl('N/A',[
-      Validators.required,
+    injurySeverityControl: new FormControl("N/A",[
     ]),
     pigMoodFormControl: new FormControl('',[
       Validators.required,
@@ -52,14 +74,14 @@ export class ReportFormComponent {
     extraNotesControl: new FormControl(),
   });
 
-  pigMoods: PigMood[] = [
+  pigMoods: SelectionInterface[] = [
     {value: "confused-0", viewValue: "Confused"},
     {value: "sad-0", viewValue: "Sad"},
     {value: "happy-0", viewValue: "Happy"},
     {value: "calm-0", viewValue: "Calm"},
-  ]
+  ];
 
-  injuryLocations: InjuryLocation[] = [
+  injuryLocations: SelectionInterface[] = [
     {value: "head-0", viewValue: "Head"},
     {value: "neck-1", viewValue: "Neck"},
     {value: "shoulders-2", viewValue: "Shoulders"},
@@ -72,9 +94,7 @@ export class ReportFormComponent {
     {value: "hooves-9", viewValue: "Hooves"},
   ];
 
-  locations: Location[] = [];
-
-  pigBreeds: PigBreed[] = [
+  pigBreeds: SelectionInterface[] = [
     {value: "unknown-0", viewValue: "Unknown"},
     {value: 'banza-1', viewValue: 'Banza'},
     {value: 'basque-2', viewValue: 'Basque'},
@@ -95,7 +115,31 @@ export class ReportFormComponent {
   ];
   
   openDialog() {
-    this.dialog.open(LocationModalComponent);
+    var dialogRef = this.dialog.open(LocationModalComponent);
+    dialogRef.afterClosed().subscribe((result: any) => {
+      let  newLocationIndex = 0;
+      // repopulate list
+      this.databaseService.getAllLocations()
+      .subscribe((elements: any)=> {
+        this.locations = [];
+        elements.forEach((element: any, index: number) => {
+          let location = element.data;
+          let value = location.name + "-" + index;
+          let viewValue = location.name;
+          this.locations.push({
+            key: element.key, 
+            locationName: location.name,
+            latitude: location.latitude,
+            longitude: location.longitude,
+          });
+          if (element.key == result.data) {
+            newLocationIndex = index;
+          }
+        });
+        // set the new location to the selection
+        this.selectedLocation = this.locations[newLocationIndex].key;
+      });
+    });
   }
 
  onInjuryToggle(toggle: MatSlideToggleChange) {
@@ -107,14 +151,72 @@ export class ReportFormComponent {
  }
 
   onSubmit(values: any) {
-    
-  // dateReported: Date - SET AFTER
-  // status: boolean - SET AFTER
+    var latitude = 0;
+    var longitude = 0;
+    var locationName = "";
+    var pigBreed = "";
+    var pigInjuryLocation = "";
+    var pigsMood = "";
+    var dateNow = Date.now().toString();
 
-    // get values
-    // create report
+    this.locations.forEach((location: ReportLocationSelectionInterface)=> {
+      if (location.key == values.locationFormControl){
+        latitude = location.latitude;
+        longitude = location.longitude;
+        locationName = location.locationName;
+      }
+    })
 
+    this.pigBreeds.forEach((breed: SelectionInterface)=> {
+      if (breed.value == values.breedFormControl){
+        pigBreed = breed.viewValue;
+      }
+    });
 
-    console.log(values);    // TODO
+    this.injuryLocations.forEach((injuryLocation: SelectionInterface)=> {
+      if (injuryLocation.value == values.injuryLocationFormControl){
+        pigInjuryLocation = injuryLocation.viewValue;
+      }
+    });
+
+    this.pigMoods.forEach((pigMood: SelectionInterface)=> {
+      if (pigMood.value == values.pigMoodFormControl){
+        pigsMood = pigMood.viewValue;
+      }
+    });
+
+    let newReport = 
+    {
+      "key": dateNow,
+      "data": {
+        "reporterName": values.reporterNameControl,
+        "reportedNumber": values.reporterNumberControl,
+        "pid": values.pidControl,
+        "pigBreed": pigBreed,
+        "pigInjured": values.pigInjuredControl,
+        "pigWhereInjured": pigInjuryLocation,
+        "pigInjurySeverity": values.injurySeverityControl,
+        "pigMood": pigsMood,
+        "dateFound": values.datePickerControl.toString(),
+        "dateReported": dateNow,
+        "locationLat": latitude,
+        "locationLong": longitude,
+        "locationName": locationName,
+        "extraNotes": values.extraNotesControl,
+        "status": false,
+      }
+    }
+
+    this.databaseService.addReport(newReport)
+    .subscribe((data) => {
+      console.log(data);
+    });
+    this.closeReportForm();
+  }
+
+  closeReportForm(){
+    this.showFormCard = false;
+    this.showFormCardEvent.emit(this.showFormCard);
+    window.location.reload();
   }
 }

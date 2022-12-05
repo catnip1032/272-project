@@ -13,4 +13,9 @@ export class FormCardComponent {
     this.showFormCard = false;
     this.showFormCardEvent.emit(this.showFormCard);
   }
+
+  handleSubmitForm(valueEmitted: boolean) {
+    this.showFormCard = valueEmitted;
+    this.showFormCardEvent.emit(this.showFormCard);
+  }
 }

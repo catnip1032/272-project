@@ -27,6 +27,9 @@ import { LocationModalComponent } from './location-modal/location-modal.componen
 import { DatabaseService } from './database.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { HttpClientModule } from '@angular/common/http';
+import { MoreDetailsModalComponent } from './more-details-modal/more-details-modal.component';
+import { PasswordModalComponent } from './password-modal/password-modal.component';
+import { AuthenticationService } from './authentication.service';
 
 @NgModule({
   declarations: [
@@ -37,6 +40,8 @@ import { HttpClientModule } from '@angular/common/http';
     FormCardComponent,
     ReportFormComponent,
     LocationModalComponent,
+    MoreDetailsModalComponent,
+    PasswordModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -62,7 +67,10 @@ import { HttpClientModule } from '@angular/common/http';
     MatSnackBarModule,
     
   ],
-  providers: [DatabaseService],
+  providers: [
+    DatabaseService,
+    AuthenticationService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

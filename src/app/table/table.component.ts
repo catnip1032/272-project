@@ -1,16 +1,12 @@
-import {AfterViewInit, Component, Input} from '@angular/core';
-import {Sort} from '@angular/material/sort';
+import { Component, Input} from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Sort } from '@angular/material/sort';
+import { AuthenticationService } from '../authentication.service';
 import { DatabaseService } from '../database.service';
-import { Report } from '../models/report';
-
-
-export interface PiggyReport {
-  location: string;
-  piggyName: string;
-  reportedBy: string;
-  timeReported: number;
-  status: string;
-}
+import { DatabaseInterface, Report } from '../interfaces';
+import { MoreDetailsModalComponent } from '../more-details-modal/more-details-modal.component';
+import { compare, generateReports } from '../utilities';
 
 /**
  * @title Piggy sorting
@@ -20,34 +16,27 @@ export interface PiggyReport {
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css']
 })
-export class TableComponent implements AfterViewInit{
+export class TableComponent {
   @Input() showFormCard: boolean = false;
 
-  // piggyReports: PiggyReport[] = [
-  //   {location: "P Sherman walliby way Sidney", piggyName: 'Hydrogen', reportedBy: "Someone", timeReported: Date.now(), status: "Found"},
-  //   {location: "Opera House", piggyName: 'Helium', reportedBy: "ANother someone", timeReported: Date.now(), status: "Dead"},
-  //   {location: "A park", piggyName: 'Barium', reportedBy: "Spongebob", timeReported: Date.now(), status: "Sad"},
-  //   {location: "Prague", piggyName: 'Carbon', reportedBy: "Patrick", timeReported: Date.now(), status: "Missing"},
-  // ];
-
-  piggyReports: PiggyReport[] = [];
-
-  reportData: PiggyReport[];
-
+  piggyReports: Report[] = [];
+  reportData: Report[] = [];
 
   constructor(
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private authenticationService: AuthenticationService,
+    private snackbar: MatSnackBar,
+    public dialog: MatDialog,
   ) {
+    this.renderReports();
+  }
+
+  renderReports() {
     var reportSubscription = this.databaseService.getAllReports();
     reportSubscription.subscribe((data: any) => {
-      data = JSON.parse(data);
-      let reports = this.databaseService.generateReports(data);
-      
+      this.piggyReports = generateReports(data);
+      this.reportData = this.piggyReports.slice();
     });
-    
-    this.reportData = this.piggyReports.slice();
-  }
-  ngAfterViewInit(): void {
   }
 
   sortData(sort: Sort) {
@@ -60,37 +49,91 @@ export class TableComponent implements AfterViewInit{
     this.reportData = data.sort((a, b) => {
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
-        case 'location':
-          return compare(a.location, b.location, isAsc);
-        case 'piggyName':
-          return compare(a.piggyName, b.piggyName, isAsc);
-        case 'reportedBy':
-          return compare(a.reportedBy, b.reportedBy, isAsc);
-        case 'timeReported':
-          return compare(a.timeReported, b.timeReported, isAsc);
-        case 'status':
-          return compare(a.status, b.status, isAsc);
+        case 'locationName':
+          return compare(a.locationName, b.locationName, isAsc);
+        case 'reporterName':
+          return compare(a.reporterName, b.reporterName, isAsc);
+        case 'dateReported':
+          return compare(a.dateReported, b.dateReported, isAsc);
         default:
           return 0;
       }
     });
   }
 
-  changePigStatus(report: Report) {
-    var oldStatus = report.status;
-    var updateSuccess = this.databaseService.updateReportById(report);
-    if (updateSuccess) {
-      // update list of piggy reports
-      // get the switch text
-      // change the switch text
-    } else {
-      // log an error
+  changePigStatus(event:any, report: Report) {
+    var onPasswordDialogSuccessClose = () => {
+      var newStatus = event.checked ? true : false;
+      var databaseInterfaceReport: DatabaseInterface = {
+        "key": report.key,
+        "data": {
+          "reporterName": report.reporterName,
+          "reportedNumber": report.reportedNumber,
+          "pid": report.pid,
+          "pigBreed": report.pigBreed,
+          "pigInjured": report.pigInjured,
+          "pigWhereInjured": report.pigWhereInjured,
+          "pigInjurySeverity": report.pigInjurySeverity,
+          "pigMood": report.pigMood,
+          "dateFound": report.dateFound,
+          "dateReported": report.dateReported,
+          "locationLat": report.locationLat,
+          "locationLong": report.locationLong,
+          "locationName": report.locationName,
+          "extraNotes": report.extraNotes,
+          "status": newStatus,
+        }
+      }
+      this.databaseService.updateReportById(databaseInterfaceReport)
+      .subscribe((data)=> {
+        console.log(data);
+        this.snackbar.open("Password correct. Status Update Success!", "X")
+      })
     }
-
+    
+    var onPasswordDialogFailureClose = () => {
+      report.status = report.status ? false : true;
+      this.snackbar.open("Status Update Cancelled.", "X")
+    }
+    
+    this.authenticationService.showPasswordDialog(onPasswordDialogSuccessClose, onPasswordDialogFailureClose);
   }
 
+  deleteReport(key: string) {
+    var onPasswordDialogSuccessClose = () => {
+      this.databaseService.removeReportById(key)
+      .subscribe((data)=> {
+        console.log(data);
+        this.renderReports();
+        this.snackbar.open("Password correct. Delete Success!", "X")
+        window.location.reload();
+      })
+    }
+
+    var onPasswordDialogFailureClose = () => {
+      this.snackbar.open("Delete Cancelled.", "X")
+    }
+    this.authenticationService.showPasswordDialog(onPasswordDialogSuccessClose, onPasswordDialogFailureClose);
+  }
+
+  showMoreDetails(report: Report) {
+    try{
+      // format date & time reported
+      var reportedDate = new Date(parseInt(report.dateReported));
+      var formattedReportedDate = reportedDate.getFullYear() + '-' +('0' + (reportedDate.getMonth()+1)).slice(-2)+ '-' +  ('0' + reportedDate.getDate()).slice(-2) + ' '+reportedDate.getHours()+ ':'+('0' + (reportedDate.getMinutes())).slice(-2)+ ':'+reportedDate.getSeconds();
+      report.dateReported = formattedReportedDate;
+
+      // format date found
+      var foundDate = new Date(report.dateFound);
+      var formattedFoundDate = foundDate.getFullYear() + '-' +('0' + (foundDate.getMonth()+1)).slice(-2)+ '-' +  ('0' + foundDate.getDate()).slice(-2);
+      report.dateFound = formattedFoundDate;
+
+      var dialogRef = this.dialog.open(MoreDetailsModalComponent,{data: report});
+    }
+    catch(e: any) {
+      console.log(e.toString());
+    }
+  }
 }
 
-function compare(a: number | string, b: number | string, isAsc: boolean) {
-  return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-}
+

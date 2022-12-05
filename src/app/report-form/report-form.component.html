@@ -16,7 +16,7 @@
 
     <mat-form-field appearance="fill">
         <mat-label>Pig ID (PID)</mat-label>
-        <input type="number" matInput formControlName="pidControl">
+        <input type="number" min="0" matInput formControlName="pidControl">
     </mat-form-field>
 
     <mat-form-field appearance="fill">
@@ -41,7 +41,7 @@
       </mat-form-field>
   
       <mat-form-field appearance="fill">
-        <mat-label>Severity of Injury</mat-label>
+        <mat-label>Severity of Injury (1-10)</mat-label>
         <input type="number" min="1" max="10" matInput formControlName="injurySeverityControl">
       </mat-form-field>
     </div>
@@ -57,15 +57,15 @@
 
     <mat-form-field appearance="fill">
       <mat-label>Location</mat-label>
-      <mat-select formControlName="locationFormControl">
+      <mat-select formControlName="locationFormControl" [(value)]="selectedLocation">
         <mat-option>          
             <button id="add-location-button" (click)="openDialog()">
               <p id="add-location-text">Add a Location</p>
               <mat-icon>add_location</mat-icon>
             </button>
         </mat-option>
-        <mat-option *ngFor="let location of locations" [value]="location.value">
-          {{location.viewValue}}
+        <mat-option *ngFor="let location of locations" [value]="location.key">
+          {{location.locationName}}
         </mat-option>
       </mat-select>
     </mat-form-field>

@@ -2,8 +2,8 @@ import { Component, AfterViewInit, Input} from '@angular/core';
 import * as L from 'leaflet';
 import{ icon, Marker } from "leaflet"; 
 import { DatabaseService } from '../database.service';
-import { Report } from '../models/report';
-// import { ReportLocation } from '../models/report-location';
+import { Report } from '../interfaces';
+import { generateReports } from '../utilities';
 
 const iconRetinaUrl = "assets/marker-icon-2x.png";
 const iconUrl = "assets/marker-icon.png";
@@ -27,6 +27,8 @@ Marker.prototype.options.icon = iconDefault;
 })
 export class MapComponent implements AfterViewInit {
   @Input() showFormCard: boolean = false;
+  locations: string[] = []
+
 
   constructor(
     private databaseService: DatabaseService,
@@ -39,7 +41,6 @@ export class MapComponent implements AfterViewInit {
       center: [49.2, -123],
       zoom: 11
     });
-    // .setView([49.2, -123], 11);
     
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
@@ -52,8 +53,6 @@ export class MapComponent implements AfterViewInit {
     tiles.addTo(this.map);
 
     this.drawPigMarkers();
-    L.marker([49.2276, -123.0076]).addTo(this.map).bindPopup("<b>Metrotown</b><br/>cases reported");
-    L.marker([49.1867, -122.8490]).addTo(this.map).bindPopup("<b>SFU Surrey</b><br/>cases reported");
   }
 
   onMapReady(map: L.Map) {
@@ -67,15 +66,20 @@ export class MapComponent implements AfterViewInit {
   drawPigMarkers(){
     this.databaseService.getAllReports()
     .subscribe((data: any) => {
-      data = JSON.parse(data);
-      let reports = this.databaseService.generateReports(data);
+      let reports = generateReports(data);
       reports.forEach((report: Report) => {
-        let lat = report.latitude;
-        let long = report.longitude;
+        let lat = parseFloat(report.locationLat);
+        let long = parseFloat(report.locationLong);
         let locationName = report.locationName;
-        L.marker([lat, long]).addTo(this.map).bindPopup(`<b>${locationName}</b><br/>cases reported`);
+        this.locations.push(locationName);
+        let numberOfCasesAtLocation = 0;
+        this.locations.forEach((location)=> {
+          if (location === locationName){
+            numberOfCasesAtLocation += 1;
+          }
+        });
+        L.marker([lat, long]).addTo(this.map).bindPopup(`<b>${locationName}</b><br/>${numberOfCasesAtLocation} Pig(s) reported`);
       });
     });
   }
-
 }

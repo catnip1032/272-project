@@ -1,0 +1,32 @@
+section {
+    width: 500px;
+    border-radius: 10px;
+}
+
+h1 {
+    text-align: center;
+    float: left;
+}
+
+td {
+    padding: 0px 20px 5px 20px;
+}
+
+table {
+    clear: left;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+button.close {
+    background: none;
+    border: none;
+    font-size: large;
+    outline: none;
+    padding-left: 295px;
+    padding-top: 10px;
+}
+
+button.close:hover {
+    font-size: larger;
+}

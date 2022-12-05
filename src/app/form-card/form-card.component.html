@@ -1,9 +1,9 @@
 <mat-card *ngIf="showFormCard">
-    <button class="close" mat-button (click)="onCloseClick()">X</button>
     <mat-card-content>
         <section>
             <h2>Create a Pig Report</h2>
-            <app-report-form></app-report-form>
+            <button class="close" mat-button (click)="onCloseClick()">X</button>
+            <app-report-form (showFormCardEvent)="handleSubmitForm($event)"></app-report-form>
         </section>
     </mat-card-content>
 </mat-card>

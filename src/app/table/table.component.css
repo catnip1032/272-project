@@ -47,12 +47,14 @@ button {
   border: none;
 }
 
-a {
+#more-details-text
+{
   color: #38bdf8;
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline;     
-  text-decoration-color: #38bdf8;
+#more-details-text:hover
+{
+text-decoration: underline;     
+text-decoration-color: #38bdf8;
 }

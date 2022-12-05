@@ -21,20 +21,20 @@
         <input type="number" matInput formControlName="longitudeControl">
       </mat-form-field>
     </fieldset>
+    <div id="location-modal-button-wrapper" mat-dialog-actions>
+      <div id="cancel-button-wrapper">
+        <label for="cancel-buton">CANCEL</label>
+        <button id="cancel-buton" mat-icon-button mat-dialog-close color="warn" aria-label="Cancel icon button">
+          <mat-icon>wrong_location</mat-icon>
+        </button>
+      </div>
+      <div class="vertical-line"></div>
+      <div id="add-button-wrapper">
+        <label for="add-buton">ADD</label>
+        <button id="add-buton" type="submit" mat-icon-button color="accent" aria-label="Add icon button" [disabled]="!form.valid">
+          <mat-icon>add_location_alt</mat-icon>
+        </button>
+      </div>
+    </div>
   </form>
 </section>
-<div id="location-modal-button-wrapper" mat-dialog-actions>
-  <div id="cancel-button-wrapper">
-    <label for="cancel-buton">CANCEL</label>
-    <button id="cancel-buton" mat-icon-button mat-dialog-close color="warn" aria-label="Cancel icon button">
-      <mat-icon>wrong_location</mat-icon>
-    </button>
-  </div>
-  <div class="vertical-line"></div>
-  <div id="add-button-wrapper">
-    <label for="add-buton">ADD</label>
-    <button id="add-buton" mat-icon-button color="accent" aria-label="Add icon button" mat-dialog-close type="submit" [disabled]="!form.valid">
-      <mat-icon>add_location_alt</mat-icon>
-    </button>
-  </div>
-</div>

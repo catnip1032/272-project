@@ -1,0 +1,119 @@
+<section>
+    <h1 mat-dialog-title>Report Details</h1>
+    <button class="close" mat-dialog-close >X</button>
+    <table>
+        <tr>
+            <td>
+                <p>Pig ID: </p>
+            </td>
+            <td>
+                <p id="pid"> {{data.pid}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Status: </p>
+            </td>
+            <td>
+                <p id="status"> {{data.status}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Reported By: </p>
+            </td>
+            <td>
+                <p id="reporterName"> {{data.reporterName}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Reporter's Number: </p>
+            </td>
+            <td>
+                <p id="reportedNumber"> {{data.reportedNumber}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Date Found: </p>
+            </td>
+            <td>
+                <p id="dateFound"> {{data.dateFound}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Date & Time Reported: </p>
+            </td>
+            <td>
+                <p id="dateReported"> {{data.dateReported}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Location Name: </p>
+            </td>
+            <td>
+                <p id="locationName"> {{data.locationName}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Geographical coordinates: </p>
+            </td>
+            <td>
+                <p id="coordinates"> {{data.locationLat}}, {{data.locationLong}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Pig Breed: </p>
+            </td>
+            <td>
+                <p id="pigBreed"> {{data.pigBreed}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Was the pig injured?: </p>
+            </td>
+            <td>
+                <p id="pigInjured"> {{data.pigInjured}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Where was the pig injured?: </p>
+            </td>
+            <td>
+                <p id="pigWhereInjured"> {{data.pigInjured ? data.pigWhereInjured : "N/A"}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>How severe was the injury? (1-10): </p>
+            </td>
+            <td>
+                <p id="pigInjurySeverity"> {{data.pigInjured ? data.pigInjurySeverity : "N/A"}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Pig's Mood: </p>
+            </td>
+            <td>
+                <p id="pigMood"> {{data.pigMood}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Extra Notes: </p>
+            </td>
+            <td>
+                <p id="extraNotes"> {{data.extraNotes}}</p>
+            </td>
+        </tr>
+    </table>
+</section>
+

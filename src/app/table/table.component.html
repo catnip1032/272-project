@@ -1,29 +1,25 @@
 <table *ngIf="showFormCard === false" matSort (matSortChange)="sortData($event)" class="mat-elevation-z8">
   <tr>
-    <th mat-sort-header="location">Location</th>
-    <th mat-sort-header="piggyName">Piggy Name</th>
-    <th mat-sort-header="reportedBy">Reported By</th>
-    <th mat-sort-header="TimeReported">Time Reported</th>
+    <th mat-sort-header="locationName">Location</th>
+    <th mat-sort-header="reporterName">Reported By</th>
+    <th mat-sort-header="dateReported">Time Reported</th>
     <th mat-sort-header="status">Status</th>
   </tr>
 
   <tr *ngFor="let report of reportData">
-    <td>{{report.location}}</td>
-    <td>{{report.piggyName}}</td>
-    <td>{{report.reportedBy}}</td>
-    <td>{{report.timeReported}}</td>
+    <td>{{report.locationName}}</td>
+    <td>{{report.reporterName}}</td>
+    <td>{{report.dateReported}}</td>
     <td>
-      <!-- TODO: see if this is the correct way to pass in the report -->
-      <button id="status-button" (click)="=changePigStatus(report)"> 
-        <p id="status-text">{{report.status}}</p>
-      </button>
+        <mat-slide-toggle id="status-button" [(ngModel)]=report.status (change)="changePigStatus($event, report)">
+          <p id="status-text">{{report.status ? "Retrieved" : "Ready For Pickup"}}</p>
+        </mat-slide-toggle>
     </td>
-    <td>{{report.status}}</td>
     <td>
-      <a href="">More Details</a>
-      </td>
+      <p id="more-details-text" (click)="showMoreDetails(report)">More Details</p>
+    </td>
     <td>
-      <button mat-icon-button color="warn" aria-label="Icon button with a delete icon">
+      <button mat-icon-button color="warn" aria-label="Icon button with a delete icon" (click)="deleteReport(report.key)">
         <mat-icon>delete</mat-icon>
       </button>
     </td>
